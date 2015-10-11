@@ -11,8 +11,11 @@ int main() {
     solver.solve(brd);
 }
 /*
-15 * 15
-http://cn.puzzle-nurikabe.com/?size=3
-id : 9654189
+TODO: support number > 9
+20*20:
+4619434
+5603745
+
+very long time: 20*20 86033
 
 */
