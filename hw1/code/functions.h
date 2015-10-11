@@ -32,6 +32,7 @@
 #define pb push_back
 #define RI(x) scanf("%d",&x)
 #define RID(x) int x;RI(x)
+#define new2d(arr,type,n,m) arr=new type *[n];FOR(i,n)arr[i]=new type [m];
 using namespace std;
 typedef long long LL;
 typedef double LD;

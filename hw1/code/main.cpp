@@ -1,10 +1,11 @@
 //by david942j
-#include "functions.h"
 #include "board.h"
+#include "solver.h"
+Solver solver;
+Board brd;
 int main() {
-    Board brd;
     brd.read();
-    brd.print();
+    solver.solve(brd);
 }
 /*
 15 * 15
