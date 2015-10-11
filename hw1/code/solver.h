@@ -121,7 +121,7 @@ struct Solver {
     }
     bool improvement() {
         if(musts(brd)) return true;
-        FOR1(depth,1) //IDFS
+        FOR1(depth,2) //IDFS
             if(stupid_search_extend(brd,depth)) return true;
         return false;
     }
@@ -152,7 +152,7 @@ struct Solver {
         return true;
     }
     bool stupid_search_extend(char **brd,int dlimit) {
-        if(VERSION < 110) return false;
+        if(VERSION < 120) return false;
         char **b; new2d(b,char,n,n);
         FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
         FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2){
