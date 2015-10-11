@@ -93,15 +93,37 @@ struct Solver {
     bool must_black() {
         return false;
     }
+    bool must_white() {
+        bool got=false;
+        for(int i=0;i<n-1;i++)for(int j=0;j<n-1;j++){
+            char c[4]={brd[i][j],brd[i+1][j],brd[i][j+1],brd[i+1][j+1]};
+            // 3b 1?
+            int b=0,q=0,id;
+            FOR(k,4){
+                b+=(c[k]=='X');
+                if(c[k]=='?')q++,id=k;
+            }
+            if(b!=3 || q!=1) continue;
+            brd[i+(id&1)][j+(!!(id&2))]='.';
+            got=true;
+        }
+        return got;
+    }
     bool improvement() {
         bool imp=false;
-        if(must_black()) imp=true;
-        //if(must_white()) imp=true;
+        //if(must_black()) imp=true;
+        if(must_white()) imp=true;
         return imp;
     }
     bool solved() {
         FOR(i,n)FOR(j,n)if(brd[i][j]=='?') return false;
         return true;
+    }
+/****************************
+* helper functions
+****************************/
+    inline char char_at(int y) {
+        return brd[y/n][y%n];
     }
     void output()const {
         puts("==================");
