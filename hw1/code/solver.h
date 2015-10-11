@@ -119,7 +119,8 @@ struct Solver {
     }
     void search() {
         Component c(n,num,brd);
-        c.print();
+        c.extend();
+        //c.print();
     }
 /****************************
 * helper functions
