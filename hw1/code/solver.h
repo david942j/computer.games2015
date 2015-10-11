@@ -4,6 +4,10 @@ struct Solver {
     int n;
     int **num;
     char **brd;
+    vector<PII> numbers; // {number, i*n+j}
+/****************************
+* init functions
+****************************/
     Solver(){num=0;brd=0;n=0;}
     ~Solver(){
         if(!num) return;
@@ -18,22 +22,82 @@ struct Solver {
         n=b.size();
         new2d(num,int,n,n);
         new2d(brd,char,n,n);
+        numbers.clear();
         FOR(i,n)FOR(j,n) 
             if(b[i][j] == '.') brd[i][j]='?',num[i][j]=-1;
             else brd[i][j]='.',num[i][j]=b[i][j]-'0'; // NUMBER10
+        make_numbers();
     }
+    void make_numbers() {
+        FOR(i,n)FOR(j,n)if(num[i][j]!=-1)
+            numbers.pb({num[i][j],i*n+j});
+    }
+/****************************
+* solve functions
+****************************/
     void solve(const Board &b) {
         init(b);
         solve();
     }
     void solve() {
+        first_greedy();
         while(improvement());
         if(solved()) puts("Solved!!");
         else puts("Can\'t improve any more QQ.");
         output();
     }
-    bool improvement() {
+/****************************
+* first greedy
+****************************/
+    void surround1() { // surround 1 with black
+        for(auto c:numbers) if(c.X==1){
+            int i=c.Y/n,j=c.Y%n;
+            FOR(k,4) {
+                int a=i+dx[k],b=j+dy[k];
+                if(!inbound(a,b,n,n)) continue;
+                if(brd[a][b]=='.')fail();
+                brd[a][b]='X';
+            }
+        }
+    }
+    void blackin2() { //a?b => aXb
+        FOR(i,n)FOR(j,n)
+            if(brd[i][j]=='?')
+                FOR(k,2) {
+                    int a1=i+dx[k],b1=j+dy[k];
+                    int a2=i+dx[k^2],b2=j+dy[k^2];
+                    if(!inbound(a1,b1,n,n) || !inbound(a2,b2,n,n)) continue;
+                    if(num[a1][b1]==-1||num[a2][b2]==-1)continue;
+                    if(brd[i][j]=='.')fail();
+                    brd[i][j]='X';
+                }
+    }
+    void untouchable() {
+        FOR(i,n)FOR(j,n) if(brd[i][j]=='?'){
+            bool touch=false;
+            for(auto c:numbers) {
+                int a=c.Y/n,b=c.Y%n;
+                if(manhatton(i,j,a,b) < c.X){
+                    touch=true;break;
+                }
+            }
+            if(!touch)brd[i][j]='X';
+        }
+    }
+    void first_greedy() {
+        surround1();
+        blackin2();
+        untouchable();
+    }
+/************end of first greedy****************/
+    bool must_black() {
         return false;
+    }
+    bool improvement() {
+        bool imp=false;
+        if(must_black()) imp=true;
+        //if(must_white()) imp=true;
+        return imp;
     }
     bool solved() {
         FOR(i,n)FOR(j,n)if(brd[i][j]=='?') return false;
