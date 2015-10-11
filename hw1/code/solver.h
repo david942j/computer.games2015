@@ -121,24 +121,48 @@ struct Solver {
     }
     bool improvement() {
         if(musts(brd)) return true;
-        if(search_extend(brd)) return true;
+        FOR1(depth,1) //IDFS
+            if(stupid_search_extend(brd,depth)) return true;
         return false;
     }
-    bool search_extend(char **brd) {
+    bool stupid_search(char **brd, int dlimit) { // true: dont' know; false: no sol
+        char **b; new2d(b,char,n,n);
+        FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
+        if(dlimit == 0) {
+            try {
+                while(musts(b));
+            } catch(const char* e) {
+                delete2d(b,n);
+                return false;
+            }
+            delete2d(b,n);
+            return true;
+        }
+        while(musts(b));
+        FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2) {
+            b[i][j]=".X"[k];
+            bool r = stupid_search(b,dlimit-1);
+            b[i][j]='?';
+            if(r)continue;
+            b[i][j]="X."[k];
+            if(stupid_search(b,dlimit-1)) {b[i][j]='?';continue;}
+            // no matter .X leads false
+            return false;
+        }
+        return true;
+    }
+    bool stupid_search_extend(char **brd,int dlimit) {
         if(VERSION < 110) return false;
         char **b; new2d(b,char,n,n);
         FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
-        // stupid search
         FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2){
-            FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
             b[i][j]=".X"[k];
-            try{
-                while(musts(b));
-            } catch(const char* e) {
+            if(!stupid_search(b,dlimit-1)) {
                 brd[i][j]="X."[k];
                 delete2d(b,n);
                 return true;
             }
+            b[i][j]='?';
         }
         delete2d(b,n);
         return false;
