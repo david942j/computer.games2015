@@ -42,6 +42,6 @@ template<class T>inline void maz(T &a,T b){if(a<b)a=b;}
 template<class T>inline void miz(T &a,T b){if(a>b)a=b;}
 int dx[]={1,0,-1,0},dy[]={0,1,0,-1};
 #define inbound(i,j,n,m) (i>=0&&j>=0&&i<n&&j<m)
-void fail(){throw "No Sol";}
+void fail(const char *s="No sol"){throw *s;}
 inline int manhatton(int a,int b,int c,int d){return abs(c-a)+abs(d-b);}
 #endif

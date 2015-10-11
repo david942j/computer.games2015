@@ -15,17 +15,16 @@ public:
         DFS(n,x,y,flag,brd);
     }
     bool extend(int n,int **num, char **brd) {
-        if(color=='X')puts("extend");
         VI possible;
         for(auto id:V) {
             int i=id/n,j=id%n;
             FOR(k,4) {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n)) continue;
-                if(brd[a][b]=='?') possible.pb(a*n+b);
+                if(brd[a][b]=='?') possible.pb(a*n+b); // four b issue
             }
         }
-        if(possible.size()==0) throw "GG when extension";
+        if(possible.size()==0) fail("GG when extension");
         else if(possible.size()==1) {
             int i=possible[0]/n,j=possible[0]%n;
             brd[i][j]=color;
@@ -55,6 +54,27 @@ public:
         Connected::read_from(n,brd,flag,x,y);
         belong = x*n+y;
     }
+    bool extend(int n,int **num, char **brd) {
+        int bnum = num[belong/n][belong%n];
+        if(V.size() > bnum) fail("No Way");
+        VI possible;
+        if(V.size() == bnum) return false;
+        for(auto id:V) {
+            int i=id/n,j=id%n;
+            FOR(k,4) {
+                int a=i+dx[k],b=j+dy[k];
+                if(!inbound(a,b,n,n)) continue;
+                if(brd[a][b]=='?') possible.pb(a*n+b); // 4?. issue
+            }
+        }
+        if(possible.size()==0) fail("GG when extension");
+        else if(possible.size()==1) {
+            int i=possible[0]/n,j=possible[0]%n;
+            brd[i][j]=color;
+            return true;
+        }
+        return false;
+    }
 };
 struct Component{
     vector<NumberConnected*> ncs;
@@ -79,19 +99,25 @@ struct Component{
         for(auto c:wbcs) delete c;
     }
     bool extend() {
-        bool ext=false;
-        if(extend_black()) return true;//ext=true;
-        //if(extend_white()) ext=true;
-        //if(extend_number()) ext=true;
-        return ext;
+        if(extend_bw('X')) return true;
+        if(extend_number()) return true;
+        if(extend_bw('.')) return true;
+        return false;
     }
-    bool extend_black() {
+    bool extend_bw(char color) {
         vector<Connected*>V;
-        for(auto c:wbcs)if(c->color=='X')V.pb(c);
-        if(V.size()<=1) return false;
+        for(auto c:wbcs)if(c->color==color)V.pb(c);
+        if(color=='X' && V.size()<=1) return false;
         bool ext=false;
         for(auto c:V)
             if(c->extend(n,num,brd))
+                ext=true;
+        return ext;
+    }
+    bool extend_number() {
+        bool ext=false;
+        for(auto c:ncs) 
+            if(c->extend(n,num,brd)) //double extension issue
                 ext=true;
         return ext;
     }

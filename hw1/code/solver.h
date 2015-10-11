@@ -61,7 +61,7 @@ struct Solver {
             }
         }
     }
-    void blackin2() { //a?b => aXb
+    void blackin2() { //a?b => aXb //TODO: extend to .?. => .X.
         FOR(i,n)FOR(j,n)
             if(brd[i][j]=='?')
                 FOR(k,2) {
@@ -114,13 +114,12 @@ struct Solver {
         bool imp=false;
         //if(must_black()) imp=true;
         if(must_white()) imp=true;
-        search();
+        if(search())imp=true;
         return imp;
     }
-    void search() {
+    bool search() {
         Component c(n,num,brd);
-        c.extend();
-        //c.print();
+        return c.extend();
     }
 /****************************
 * helper functions
