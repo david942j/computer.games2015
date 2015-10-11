@@ -125,6 +125,7 @@ struct Solver {
         return false;
     }
     bool search_extend(char **brd) {
+        if(VERSION < 110) return false;
         char **b; new2d(b,char,n,n);
         FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
         // stupid search

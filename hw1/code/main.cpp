@@ -4,6 +4,7 @@
 Solver solver;
 Board brd;
 int main() {
+    printf("Nurikabe Solver Ver %d.%d.%d\n",VERSION/100,VERSION/10%10,VERSION%10);
     brd.read();
     solver.solve(brd);
 }

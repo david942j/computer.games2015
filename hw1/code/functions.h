@@ -2,6 +2,10 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#ifndef VERSION
+#define VERSION 110
+#endif
+
 #include <cstdio>
 #include <cstring>
 #include <set>
