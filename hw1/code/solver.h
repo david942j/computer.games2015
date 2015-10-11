@@ -1,5 +1,6 @@
 #include "functions.h"
 #include "board.h"
+#include "component.h"
 struct Solver {
     int n;
     int **num;
@@ -113,15 +114,20 @@ struct Solver {
         bool imp=false;
         //if(must_black()) imp=true;
         if(must_white()) imp=true;
+        search();
         return imp;
     }
-    bool solved() {
-        FOR(i,n)FOR(j,n)if(brd[i][j]=='?') return false;
-        return true;
+    void search() {
+        Component c(n,num,brd);
+        c.print();
     }
 /****************************
 * helper functions
 ****************************/
+    bool solved() {
+        FOR(i,n)FOR(j,n)if(brd[i][j]=='?') return false;
+        return true;
+    }
     inline char char_at(int y) {
         return brd[y/n][y%n];
     }
