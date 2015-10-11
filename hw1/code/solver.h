@@ -96,15 +96,15 @@ struct Solver {
             for(auto c:nc.V) s[c/n][c%n] = nc.belong;
         }
         FOR(i,n)FOR(j,n) if(brd[i][j]=='?') {
-            FOR(k,2) {
-                int a1=i+dx[k],b1=j+dy[k];
-                int a2=i+dx[k^2],b2=j+dy[k^2];
-                if(!inbound(a1,b1,n,n) || !inbound(a2,b2,n,n)) continue;
-                if(s[a1][b1]==-1||s[a2][b2]==-1) continue;
-                if(s[a1][b1]==s[a2][b2]) continue;
-                if(brd[i][j]=='.')fail();
-                brd[i][j]='X'; break;
+            VI V;
+            FOR(k,4) {
+                int a=i+dx[k],b=j+dy[k];
+                if(!inbound(a,b,n,n)) continue;
+                if(s[a][b]==-1) continue;
+                V.pb(s[a][b]);
             }
+            V.resize(unique(ALL(V))-V.begin());
+            if(V.size()>=2) brd[i][j]='X';
         }
         delete2d(flag,n); delete2d(s,n);
         return false;
@@ -152,8 +152,8 @@ struct Solver {
     void output()const {
         puts("==================");
         FOR(i,n) {
-            FOR(j,n)if(num[i][j]!=-1)printf("%d",num[i][j]);
-                else printf("%c",brd[i][j]);
+            FOR(j,n)if(num[i][j]!=-1)printf(" %d",num[i][j]);
+                else printf(" %c",brd[i][j]);
             puts("");
         }
         puts("==================");
