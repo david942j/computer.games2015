@@ -19,4 +19,5 @@
 .1.2..4.......6....3
 ....................
 ..3...3.8..4.1...6.1
-; Solved in Ver 1.2.0 dlimit=2 with very long time
+; Solved in Ver 1.2.0 dlimit=2
+; 187.93s user 3.99s system 96% cpu 3:19.21 total

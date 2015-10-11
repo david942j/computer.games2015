@@ -167,15 +167,6 @@ struct Solver {
         delete2d(b,n);
         return false;
     }
-    int search(char **brd, int dlimit) { //-1 don't know; 0 GG; 1 Good
-        if(dlimit<=0) return -1;
-        char **b; new2d(b,char,n,n);
-        FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
-        Component c(n,num,b);
-
-        delete2d(b,n);
-        return false;
-    }
 /****************************
 * helper functions
 ****************************/
