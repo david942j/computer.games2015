@@ -87,11 +87,30 @@ struct Solver {
     }
     void first_greedy() {
         surround1();
-        blackin2();
+        //blackin2();
         untouchable();
     }
 /************end of first greedy****************/
-    bool must_black() {
+    bool must_black() { //4?2 => 4X2
+        bool **flag; int **s;
+        new2d(flag,bool,n,n); new2d(s,int,n,n);
+        FOR(i,n)FOR(j,n)flag[i][j]=false,s[i][j]=-1;
+        FOR(i,n)FOR(j,n)if(num[i][j]!=-1){
+            NumberConnected nc(n,brd,flag,i,j);
+            for(auto c:nc.V) s[c/n][c%n] = nc.belong;
+        }
+        FOR(i,n)FOR(j,n) if(brd[i][j]=='?') {
+            FOR(k,2) {
+                int a1=i+dx[k],b1=j+dy[k];
+                int a2=i+dx[k^2],b2=j+dy[k^2];
+                if(!inbound(a1,b1,n,n) || !inbound(a2,b2,n,n)) continue;
+                if(s[a1][b1]==-1||s[a2][b2]==-1) continue;
+                if(s[a1][b1]==s[a2][b2]) continue;
+                if(brd[i][j]=='.')fail();
+                brd[i][j]='X'; break;
+            }
+        }
+        delete2d(flag,n); delete2d(s,n);
         return false;
     }
     bool must_white() {
@@ -112,14 +131,17 @@ struct Solver {
     }
     bool improvement() {
         bool imp=false;
-        //if(must_black()) imp=true;
         if(must_white()) imp=true;
+        if(must_black()) imp=true;
+        Component c(n,num,brd);
+        //output();
+        if(c.extend()) imp=true;
         if(search())imp=true;
+        //output();
         return imp;
     }
     bool search() {
-        Component c(n,num,brd);
-        return c.extend();
+        return false;
     }
 /****************************
 * helper functions

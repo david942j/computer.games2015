@@ -33,6 +33,7 @@
 #define RI(x) scanf("%d",&x)
 #define RID(x) int x;RI(x)
 #define new2d(arr,type,n,m) arr=new type *[n];FOR(i,n)arr[i]=new type [m];
+#define delete2d(arr,n) if(arr){FOR(i,n)if(arr[i]){delete[]arr[i];arr[i]=0;}delete[]arr;arr=0;}
 using namespace std;
 typedef long long LL;
 typedef double LD;
@@ -42,6 +43,6 @@ template<class T>inline void maz(T &a,T b){if(a<b)a=b;}
 template<class T>inline void miz(T &a,T b){if(a>b)a=b;}
 int dx[]={1,0,-1,0},dy[]={0,1,0,-1};
 #define inbound(i,j,n,m) (i>=0&&j>=0&&i<n&&j<m)
-void fail(const char *s="No sol"){throw *s;}
+void fail(const char *s="No sol"){printf("%s\n",s); assert(false);}
 inline int manhatton(int a,int b,int c,int d){return abs(c-a)+abs(d-b);}
 #endif

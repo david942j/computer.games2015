@@ -67,7 +67,7 @@ public:
                 if(brd[a][b]=='?') possible.pb(a*n+b); // 4?. issue
             }
         }
-        if(possible.size()==0) fail("GG when extension");
+        if(possible.size()==0) fail("GG when number extension");
         else if(possible.size()==1) {
             int i=possible[0]/n,j=possible[0]%n;
             brd[i][j]=color;
@@ -108,11 +108,10 @@ struct Component{
         vector<Connected*>V;
         for(auto c:wbcs)if(c->color==color)V.pb(c);
         if(color=='X' && V.size()<=1) return false;
-        bool ext=false;
         for(auto c:V)
-            if(c->extend(n,num,brd))
-                ext=true;
-        return ext;
+            if(c->extend(n,num,brd)) //double extension issue
+                return true;
+        return false;
     }
     bool extend_number() {
         bool ext=false;
