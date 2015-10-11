@@ -126,15 +126,18 @@ struct Solver {
         return got;
     }
     bool improvement() {
-        bool imp=false;
-        if(must_white()) imp=true;
-        if(must_black()) imp=true;
-        Component c(n,num,brd);
-        //output();
-        if(c.extend()) imp=true;
-        if(search())imp=true;
-        //output();
-        return imp;
+        int imp=0;
+        while(true){
+            bool tmp=false;
+            if(must_white() | must_black()) tmp=true;
+            Component c(n,num,brd);
+            if(c.extend()) tmp=true;
+            if(tmp)imp++;
+            else break;
+        }
+        // dont search if we has improved something
+        if(imp==0 && search()) imp=true;
+        return imp>0;
     }
     bool search() {
         return false;
