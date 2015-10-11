@@ -21,10 +21,10 @@ public:
             FOR(k,4) {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n)) continue;
-                if(brd[a][b]=='?') possible.pb(a*n+b); // four b issue
+                if(brd[a][b]=='?') possible.pb(a*n+b);
             }
         }
-        if(possible.size()==0) fail("GG when extension");
+        if(possible.size()==0) throw ("GG when extension");
         else if(possible.size()==1) {
             int i=possible[0]/n,j=possible[0]%n;
             brd[i][j]=color;
@@ -56,7 +56,7 @@ public:
     }
     bool extend(int n,int **num, char **brd) {
         int bnum = num[belong/n][belong%n];
-        if(V.size() > bnum) fail("No Way");
+        if(V.size() > bnum) throw ("More than bnum");
         VI possible;
         if(V.size() == bnum) return surround_black(n,brd);
         for(auto id:V) {
@@ -67,7 +67,7 @@ public:
                 if(brd[a][b]=='?') possible.pb(a*n+b); // 4?. issue
             }
         }
-        if(possible.size()==0) fail("GG when number extension");
+        if(possible.size()==0) throw ("GG when number extension");
         else if(possible.size()==1) {
             int i=possible[0]/n,j=possible[0]%n;
             brd[i][j]=color;
@@ -121,7 +121,7 @@ struct Component{
         for(auto c:wbcs)if(c->color==color)V.pb(c);
         if(color=='X' && V.size()<=1) return false;
         for(auto c:V)
-            if(c->extend(n,num,brd)) //double extension issue
+            if(c->extend(n,num,brd)) //prevent double extension issue
                 return true;
         return false;
     }

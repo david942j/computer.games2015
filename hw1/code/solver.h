@@ -57,19 +57,7 @@ struct Solver {
             }
         }
     }
-    void blackin2() { //a?b => aXb //TODO: extend to .?. => .X.
-        FOR(i,n)FOR(j,n)
-            if(brd[i][j]=='?')
-                FOR(k,2) {
-                    int a1=i+dx[k],b1=j+dy[k];
-                    int a2=i+dx[k^2],b2=j+dy[k^2];
-                    if(!inbound(a1,b1,n,n) || !inbound(a2,b2,n,n)) continue;
-                    if(num[a1][b1]==-1||num[a2][b2]==-1)continue;
-                    if(brd[i][j]=='.')fail();
-                    brd[i][j]='X';
-                }
-    }
-    void untouchable() {
+    void untouchable() { //simple untouchable
         FOR(i,n)FOR(j,n) if(brd[i][j]=='?'){
             bool touch=false;
             for(auto c:numbers) {
@@ -83,11 +71,10 @@ struct Solver {
     }
     void first_greedy() {
         surround1();
-        //blackin2();
         untouchable();
     }
 /************end of first greedy****************/
-    bool must_black() { //4?2 => 4X2
+    bool must_black(char **brd) { //4?2 => 4X2
         bool **flag; int **s;
         new2d(flag,bool,n,n); new2d(s,int,n,n);
         FOR(i,n)FOR(j,n)flag[i][j]=false,s[i][j]=-1;
@@ -95,6 +82,7 @@ struct Solver {
             NumberConnected nc(n,brd,flag,i,j);
             for(auto c:nc.V) s[c/n][c%n] = nc.belong;
         }
+        bool got=false;
         FOR(i,n)FOR(j,n) if(brd[i][j]=='?') {
             VI V;
             FOR(k,4) {
@@ -104,12 +92,12 @@ struct Solver {
                 V.pb(s[a][b]);
             }
             V.resize(unique(ALL(V))-V.begin());
-            if(V.size()>=2) brd[i][j]='X';
+            if(V.size()>=2) got=true,brd[i][j]='X';
         }
         delete2d(flag,n); delete2d(s,n);
-        return false;
+        return got;
     }
-    bool must_white() {
+    bool must_white(char **brd) {
         bool got=false;
         for(int i=0;i<n-1;i++)for(int j=0;j<n-1;j++){
             char c[4]={brd[i][j],brd[i+1][j],brd[i][j+1],brd[i+1][j+1]};
@@ -125,21 +113,42 @@ struct Solver {
         }
         return got;
     }
-    bool improvement() {
-        int imp=0;
-        while(true){
-            bool tmp=false;
-            if(must_white() | must_black()) tmp=true;
-            Component c(n,num,brd);
-            if(c.extend()) tmp=true;
-            if(tmp)imp++;
-            else break;
-        }
-        // dont search if we has improved something
-        if(imp==0 && search()) imp=true;
-        return imp>0;
+    bool musts(char **brd) {
+        bool tmp=must_white(brd) | must_black(brd);
+        Component c(n,num,brd);
+        if(c.extend()) tmp=true;
+        return tmp;
     }
-    bool search() {
+    bool improvement() {
+        if(musts(brd)) return true;
+        if(search_extend(brd)) return true;
+        return false;
+    }
+    bool search_extend(char **brd) {
+        char **b; new2d(b,char,n,n);
+        FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
+        // stupid search
+        FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2){
+            FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
+            b[i][j]=".X"[k];
+            try{
+                while(musts(b));
+            } catch(const char* e) {
+                brd[i][j]="X."[k];
+                delete2d(b,n);
+                return true;
+            }
+        }
+        delete2d(b,n);
+        return false;
+    }
+    int search(char **brd, int dlimit) { //-1 don't know; 0 GG; 1 Good
+        if(dlimit<=0) return -1;
+        char **b; new2d(b,char,n,n);
+        FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
+        Component c(n,num,b);
+
+        delete2d(b,n);
         return false;
     }
 /****************************
@@ -152,11 +161,12 @@ struct Solver {
     inline char char_at(int y) {
         return brd[y/n][y%n];
     }
-    void output()const {
+    void output(char **b=NULL)const {
+        if(!b)b=brd;
         puts("==================");
         FOR(i,n) {
             FOR(j,n)if(num[i][j]!=-1)printf(" %d",num[i][j]);
-                else printf(" %c",brd[i][j]);
+                else printf(" %c",b[i][j]);
             puts("");
         }
         puts("==================");
