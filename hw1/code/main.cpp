@@ -1,6 +1,6 @@
 //by david942j
 #include "functions.h"
-
+#include "board.h"
 int main() {
     Board brd;
     brd.read();

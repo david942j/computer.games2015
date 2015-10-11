@@ -1,4 +1,7 @@
 //by david942j
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
+
 #include <cstdio>
 #include <cstring>
 #include <set>
@@ -37,3 +40,5 @@ typedef std::pair<int,int> PII;
 template<class T>inline void maz(T &a,T b){if(a<b)a=b;}
 template<class T>inline void miz(T &a,T b){if(a>b)a=b;}
 template<class T>inline T abs(T a){return a>0?a:-a;}
+
+#endif
