@@ -6,7 +6,7 @@ struct Board { //doesn't support number >= 10 QQ NUMBER10
     char **brd;
     Board(){n=0;brd=NULL;}
     ~Board() {
-        delete2d(brd);
+        delete2d(brd,n);
     }
     inline int size()const{return n;}
     char* operator[](const int &i)const {

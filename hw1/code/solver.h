@@ -11,8 +11,8 @@ struct Solver {
 ****************************/
     Solver(){num=0;brd=0;n=0;}
     ~Solver(){
-        delete2d(num);
-        delete2d(brd);
+        delete2d(num,n);
+        delete2d(brd,n);
         n=0;
     }
     void init(const Board &b) {

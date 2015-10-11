@@ -58,7 +58,7 @@ public:
         int bnum = num[belong/n][belong%n];
         if(V.size() > bnum) fail("No Way");
         VI possible;
-        if(V.size() == bnum) return false;
+        if(V.size() == bnum) return surround_black(n,brd);
         for(auto id:V) {
             int i=id/n,j=id%n;
             FOR(k,4) {
@@ -74,6 +74,18 @@ public:
             return true;
         }
         return false;
+    }
+    bool surround_black(int n, char **brd) {
+        bool ret=false;
+        for(auto id:V) {
+            int i=id/n,j=id%n;
+            FOR(k,4) {
+                int a=i+dx[k],b=j+dy[k];
+                if(!inbound(a,b,n,n)) continue;
+                if(brd[a][b]=='?') brd[a][b]='X',ret=true;
+            }
+        }
+        return ret;
     }
 };
 struct Component{
