@@ -11,12 +11,8 @@ struct Solver {
 ****************************/
     Solver(){num=0;brd=0;n=0;}
     ~Solver(){
-        if(!num) return;
-        FOR(i,n){delete [] num[i];num[i]=0;delete[]brd[i];brd[i]=0;}
-        delete [] num;
-        delete [] brd;
-        num=0;
-        brd=0;
+        delete2d(num);
+        delete2d(brd);
         n=0;
     }
     void init(const Board &b) {
