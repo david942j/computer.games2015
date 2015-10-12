@@ -1,6 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include "functions.h"
+#include "board.h"
 class Connected{
 public:
     Connected(){}
@@ -91,12 +92,25 @@ public:
 struct Component{
     vector<NumberConnected*> ncs;
     vector<Connected*> wbcs;
-    int n;
-    int **num;
+    int n; int **num; // never change
     char **brd;
-    Component(){}
-    Component(int _n,int **_num,char **_brd) {
-        n=_n;num=_num;brd=_brd;
+    Component(){num=0;brd=0;n=0;}
+    Component(const Component& b){
+        n=b.n;
+        num=b.num;
+        new2d(brd,char,n,n);
+        FOR(i,n)FOR(j,n) brd[i][j]=b[i][j];
+    }
+    void init(int _n, const Board &b, int **_num) {
+        n=_n;
+        num=_num;
+        new2d(brd,char,n,n);
+        FOR(i,n)FOR(j,n) 
+            if(b[i][j] == '.') brd[i][j]='?';
+            else brd[i][j]='.';
+    }
+    void refresh() {
+        clear();
         bool **flag;
         new2d(flag,bool,n,n);
         FOR(i,n)FOR(j,n)flag[i][j]=false;
@@ -105,10 +119,20 @@ struct Component{
         FOR(i,n)FOR(j,n) if(!flag[i][j])
             if(brd[i][j]=='X'||brd[i][j]=='.')
                 wbcs.pb(new Connected(n,brd,flag,i,j));
+        delete2d(flag,n);
     }
-    ~Component() {
+    void clear() {
         for(auto c:ncs) delete c;
         for(auto c:wbcs) delete c;
+        ncs.clear(); wbcs.clear();
+    }
+    const char *operator[](const int &i)const{return brd[i];}
+    void set(int a,int b, char c) {
+        brd[a][b]=c;
+        refresh();
+    }
+    ~Component() {
+        clear();
     }
     bool extend() {
         if(extend_bw('X')) return true;

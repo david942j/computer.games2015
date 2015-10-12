@@ -3,29 +3,28 @@
 #include "component.h"
 struct Solver {
     int n;
+    Component brd;
     int **num;
-    char **brd;
     vector<PII> numbers; // {number, i*n+j}
 /****************************
 * init functions
 ****************************/
-    Solver(){num=0;brd=0;n=0;}
+    Solver(){num=0;n=0;}
     ~Solver(){
         delete2d(num,n);
-        delete2d(brd,n);
         n=0;
     }
     void init(const Board &b) {
         n=b.size();
         new2d(num,int,n,n);
-        new2d(brd,char,n,n);
-        numbers.clear();
-        FOR(i,n)FOR(j,n) 
-            if(b[i][j] == '.') brd[i][j]='?',num[i][j]=-1;
-            else brd[i][j]='.',num[i][j]=b[i][j]-'0'; // NUMBER10
+        FOR(i,n)FOR(j,n)
+            if(b[i][j]!='.')num[i][j]=b[i][j]-'0'; // NUMBER10
+            else num[i][j]=-1;
+        brd.init(n, b, num);
         make_numbers();
     }
     void make_numbers() {
+        numbers.clear();
         FOR(i,n)FOR(j,n)if(num[i][j]!=-1)
             numbers.pb({num[i][j],i*n+j});
     }
@@ -53,7 +52,7 @@ struct Solver {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n)) continue;
                 if(brd[a][b]=='.')fail();
-                brd[a][b]='X';
+                brd.set(a,b,'X');
             }
         }
     }
@@ -66,7 +65,7 @@ struct Solver {
                     touch=true;break;
                 }
             }
-            if(!touch)brd[i][j]='X';
+            if(!touch)brd.set(i,j,'X');
         }
     }
     void first_greedy() {
@@ -74,13 +73,12 @@ struct Solver {
         untouchable();
     }
 /************end of first greedy****************/
-    bool must_black(char **brd) { //4?2 => 4X2
-        bool **flag; int **s;
-        new2d(flag,bool,n,n); new2d(s,int,n,n);
-        FOR(i,n)FOR(j,n)flag[i][j]=false,s[i][j]=-1;
-        FOR(i,n)FOR(j,n)if(num[i][j]!=-1){
-            NumberConnected nc(n,brd,flag,i,j);
-            for(auto c:nc.V) s[c/n][c%n] = nc.belong;
+    bool must_black(Component& brd) { //4?2 => 4X2
+        int **s;new2d(s,int,n,n);
+        brd.refresh();
+        FOR(i,n)FOR(j,n)s[i][j]=-1;
+        for(auto nc: brd.ncs){
+            for(auto c:nc->V) s[c/n][c%n] = nc->belong;
         }
         bool got=false;
         FOR(i,n)FOR(j,n) if(brd[i][j]=='?') {
@@ -92,12 +90,12 @@ struct Solver {
                 V.pb(s[a][b]);
             }
             V.resize(unique(ALL(V))-V.begin());
-            if(V.size()>=2) got=true,brd[i][j]='X';
+            if(V.size()>=2) got=true,brd.set(i,j,'X');
         }
-        delete2d(flag,n); delete2d(s,n);
+        delete2d(s,n);
         return got;
     }
-    bool must_white(char **brd) {
+    bool must_white(Component& brd) {
         bool got=false;
         for(int i=0;i<n-1;i++)for(int j=0;j<n-1;j++){
             char c[4]={brd[i][j],brd[i+1][j],brd[i][j+1],brd[i+1][j+1]};
@@ -108,63 +106,55 @@ struct Solver {
                 if(c[k]=='?')q++,id=k;
             }
             if(b!=3 || q!=1) continue;
-            brd[i+(id&1)][j+(!!(id&2))]='.';
+            brd.set(i+(id&1),j+(!!(id&2)),'.');
             got=true;
         }
         return got;
     }
-    bool musts(char **brd) {
+    bool musts(Component&  brd) {
         bool tmp=must_white(brd) | must_black(brd);
-        Component c(n,num,brd);
-        if(c.extend()) tmp=true;
+        if(brd.extend()) tmp=true;
         return tmp;
     }
     bool improvement() {
         if(musts(brd)) return true;
         FOR1(depth,2) //IDFS
-            if(stupid_search_extend(brd,depth)) return true;
+            if(stupid_search_extend(depth)) return true;
         return false;
     }
-    bool stupid_search(char **brd, int dlimit) { // true: dont' know; false: no sol
-        char **b; new2d(b,char,n,n);
-        FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
+    bool stupid_search(Component& brd, int dlimit) { // true: dont' know; false: no sol
+        Component b(brd);
         if(dlimit == 0) {
             try {
                 while(musts(b));
             } catch(const char* e) {
-                delete2d(b,n);
                 return false;
             }
-            delete2d(b,n);
             return true;
         }
         while(musts(b));
         FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2) {
-            b[i][j]=".X"[k];
+            b.set(i,j,".X"[k]);
             bool r = stupid_search(b,dlimit-1);
-            b[i][j]='?';
+            b.set(i,j,'?');
             if(r)continue;
-            b[i][j]="X."[k];
-            if(stupid_search(b,dlimit-1)) {b[i][j]='?';continue;}
+            b.set(i,j,"X."[k]);
+            if(stupid_search(b,dlimit-1)) {b.set(i,j,'?');continue;}
             // no matter .X leads false
             return false;
         }
         return true;
     }
-    bool stupid_search_extend(char **brd,int dlimit) {
-        if(VERSION < 120) return false;
-        char **b; new2d(b,char,n,n);
-        FOR(i,n)FOR(j,n)b[i][j]=brd[i][j];
+    bool stupid_search_extend(int dlimit) {
+        Component b(brd);
         FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2){
-            b[i][j]=".X"[k];
+            b.set(i,j,".X"[k]);
             if(!stupid_search(b,dlimit-1)) {
-                brd[i][j]="X."[k];
-                delete2d(b,n);
+                brd.set(i,j,"X."[k]);
                 return true;
             }
-            b[i][j]='?';
+            b.set(i,j,'?'); // hard to handle...
         }
-        delete2d(b,n);
         return false;
     }
 /****************************
@@ -177,8 +167,7 @@ struct Solver {
     inline char char_at(int y) {
         return brd[y/n][y%n];
     }
-    void output(char **b=NULL)const {
-        if(!b)b=brd;
+    void output(Component& b)const {
         puts("==================");
         FOR(i,n) {
             FOR(j,n)if(num[i][j]!=-1)printf(" %d",num[i][j]);
@@ -187,4 +176,5 @@ struct Solver {
         }
         puts("==================");
     }
+    void output(){output(brd);}
 };
