@@ -101,6 +101,10 @@ struct Component{
         new2d(brd,char,n,n);
         FOR(i,n)FOR(j,n) brd[i][j]=b[i][j];
     }
+    ~Component() {
+        clear();
+        delete2d(brd,n);
+    }
     void init(int _n, const Board &b, int **_num) {
         n=_n;
         num=_num;
@@ -129,12 +133,9 @@ struct Component{
     const char *operator[](const int &i)const{return brd[i];}
     void set(int a,int b, char c) {
         brd[a][b]=c;
-        refresh();
-    }
-    ~Component() {
-        clear();
     }
     bool extend() {
+        refresh();
         if(extend_bw('X')) return true;
         if(extend_number()) return true;
         if(extend_bw('.')) return true;
