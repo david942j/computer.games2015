@@ -89,7 +89,6 @@ struct Solver {
             V.resize(unique(ALL(V))-V.begin());
             if(V.size()>=2) {
                 got=true,brd.set(i,j,'X');
-                brd.refresh();
             }
         }
         return got;
@@ -152,7 +151,7 @@ struct Solver {
                 brd.set(i,j,"X."[k]);
                 return true;
             }
-            b.set(i,j,'?', false); // hard to handle...
+            b.set(i,j,'?', false);
         }
         return false;
     }

@@ -113,13 +113,13 @@ struct Component{
         bcs.clear();
     }
     const char *operator[](const int &i)const{return &brd[i*n];}
-    void set(int x,char c) {
+    void set(int x,char c, bool update) {
         if(brd[x]+c == '.'+'X') throw "Inconsistent set";
         brd[x]=c;
+        if(update)update_connections(x/n,x%n,c);
     }
     void set(int a,int b, char c, bool update=true) {
-        set(a*n+b,c);
-        if(update)update_connections(a,b,c);
+        set(a*n+b,c, update);
     }
     void update_connections(int i,int j, char color) {
         assert(color!='?');
@@ -161,14 +161,13 @@ struct Component{
                 if(!inbound(a,b,n,n) || brd[a*n+b]!='?') continue;
                 c->nbs.insert(a*n+b);
             }
+            c->nbs.erase(x);
             U(id[0],x);
             return;
         }
-        refresh();
         //FOR(i,5)printf("%d ",cnt[i]);puts("");
     }
     bool extend() {
-        refresh();
         if(extend_bw(bcs,true)) return true;
         if(extend_number()) return true;
         if(extend_bw(wcs,false)) return true;
@@ -212,7 +211,7 @@ struct Component{
         return ext;
     }
     void surround_black(Connected *c) {
-        for(auto id:c->nbs) set(id,'X'); //bad because keep new / delete
+        for(auto id:c->nbs) set(id,'X', false); //bad because keep new / delete
     }
 };
 #endif
