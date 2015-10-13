@@ -11,18 +11,17 @@ public:
     }
     VI ids, nbs;
     char color;
-    int belong, bnum;
+    int bnum;
     void read_from(int n,char *brd,bool *flag,int x){
         ids.clear();
         nbs.clear();
         color = brd[x];
-        belong = x;
         DFS(n,x,flag,brd);
         sort(ALL(nbs));
         nbs.resize(unique(ALL(nbs))-nbs.begin());
     }
     void output() {
-        printf("boss @ %d\nids: \n",belong);
+        printf("boss @ %d\nids: \n",ids[0]);
         for(auto c:ids) printf("%d ",c);
         puts("\nneighbors: ");
         for(auto c:nbs) printf("%d ",c);
@@ -40,54 +39,7 @@ private:
         }
     }
 };
-/*class NumberConnected:public Connected {
-public:
-    NumberConnected(){}
-    NumberConnected(int n,char **brd,bool **flag,int x,int y){
-        read_from(n,brd,flag,x,y);
-    }
-    int belong;
-    void read_from(int n,char **brd,bool **flag,int x,int y) {
-        Connected::read_from(n,brd,flag,x,y);
-        belong = x*n+y;
-    }
-    bool extend(int n,int **num, char **brd) {
-        int bnum = num[belong/n][belong%n];
-        if(V.size() > bnum) throw ("More than bnum");
-        if(V.size() == bnum) return surround_black(n,brd);
-        int possible = -1;
-        for(auto id:V) {
-            int i=id/n,j=id%n;
-            FOR(k,4) {
-                int a=i+dx[k],b=j+dy[k];
-                if(!inbound(a,b,n,n)) continue;
-                if(brd[a][b]=='?') {
-                    if(possible != -1&&possible!=a*n+b) return false; //more than two
-                    possible = a*n+b;
-                }
-            }
-        }
-        if(possible==-1) throw ("GG when number extension");
-        int i=possible/n,j=possible%n;
-        brd[i][j]=color;
-        return true;
-    }
-    bool surround_black(int n, char **brd) {
-        bool ret=false;
-        for(auto id:V) {
-            int i=id/n,j=id%n;
-            FOR(k,4) {
-                int a=i+dx[k],b=j+dy[k];
-                if(!inbound(a,b,n,n)) continue;
-                if(brd[a][b]=='?') brd[a][b]='X',ret=true;
-            }
-        }
-        return ret;
-    }
-};*/
 struct Component{
-    //vector<NumberConnected*> ncs;
-    //vector<Connected*> wbcs;
     int n; int **num; // never change
     char *brd;
     Connected* *belong;
@@ -108,7 +60,6 @@ struct Component{
         num=b.num;
         news();
         FOR(i,n)FOR(j,n) brd[i*n+j]=b[i][j];
-//        refresh();
     }
     ~Component() {
         clear();
@@ -172,7 +123,6 @@ struct Component{
     }
     bool extend() {
         refresh();
-        //output();
         if(extend_bw('X')) return true;
         if(extend_number()) return true;
         if(extend_bw('.')) return true;
@@ -220,9 +170,6 @@ struct Component{
     }
     void surround_black(Connected *c) {
         for(auto id:c->nbs) set(id,'X');
-    }
-    void print() {
-        //printf("%d %d %d\n",ncs.size(),wcs.size(),bcs.size());
     }
 };
 #endif

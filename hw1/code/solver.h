@@ -82,7 +82,6 @@ struct Solver {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n) || brd[a][b]=='?') continue;
                 int f = brd.father(a*n+b);
-                //printf("%d %d\n",a*n+b,f);
                 if( brd.belong[f]->bnum==-1) continue;
                 V.pb(f);
             }
@@ -112,14 +111,11 @@ struct Solver {
     }
     bool musts(Component&  brd) {
         bool tmp=must_white(brd) | must_black(brd);
-        //output();
         if(brd.extend()) tmp=true;
         return tmp;
     }
     bool improvement() {
-        //try{
         if(musts(brd)) return true;
-        //}catch(const char *s){printf("%s\n",s);exit(0);}
         FOR1(depth,2) //IDFS
             if(stupid_search_extend(depth)) return true;
         return false;
