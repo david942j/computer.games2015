@@ -74,25 +74,24 @@ struct Solver {
     }
 /************end of first greedy****************/
     bool must_black(Component& brd) { //4?2 => 4X2
-        int **s;new2d(s,int,n,n);
         brd.refresh();
-        FOR(i,n)FOR(j,n)s[i][j]=-1;
-        for(auto nc: brd.ncs){
-            for(auto c:nc->V) s[c/n][c%n] = nc->belong;
-        }
         bool got=false;
         FOR(i,n)FOR(j,n) if(brd[i][j]=='?') {
             VI V;
             FOR(k,4) {
                 int a=i+dx[k],b=j+dy[k];
-                if(!inbound(a,b,n,n)) continue;
-                if(s[a][b]==-1) continue;
-                V.pb(s[a][b]);
+                if(!inbound(a,b,n,n) || brd[a][b]=='?') continue;
+                int f = brd.father(a*n+b);
+                //printf("%d %d\n",a*n+b,f);
+                if( brd.belong[f]->bnum==-1) continue;
+                V.pb(f);
             }
             V.resize(unique(ALL(V))-V.begin());
-            if(V.size()>=2) got=true,brd.set(i,j,'X');
+            if(V.size()>=2) {
+                got=true,brd.set(i,j,'X');
+                brd.refresh();
+            }
         }
-        delete2d(s,n);
         return got;
     }
     bool must_white(Component& brd) {
@@ -113,11 +112,14 @@ struct Solver {
     }
     bool musts(Component&  brd) {
         bool tmp=must_white(brd) | must_black(brd);
+        //output();
         if(brd.extend()) tmp=true;
         return tmp;
     }
     bool improvement() {
+        //try{
         if(musts(brd)) return true;
+        //}catch(const char *s){printf("%s\n",s);exit(0);}
         FOR1(depth,2) //IDFS
             if(stupid_search_extend(depth)) return true;
         return false;
