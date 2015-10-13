@@ -9,7 +9,8 @@ public:
         bnum=_bnum;
         read_from(n,brd,flag,x);
     }
-    VI ids, nbs;
+    VI ids;
+    set<int> nbs;
     char color;
     int bnum;
     void read_from(int n,char *brd,bool *flag,int x){
@@ -17,8 +18,8 @@ public:
         nbs.clear();
         color = brd[x];
         DFS(n,x,flag,brd);
-        sort(ALL(nbs));
-        nbs.resize(unique(ALL(nbs))-nbs.begin());
+        //sort(ALL(nbs));
+        //nbs.resize(unique(ALL(nbs))-nbs.begin());
     }
     void output() {
         printf("boss @ %d\nids: \n",ids[0]);
@@ -34,7 +35,7 @@ private:
         FOR(k,4) {
             int a=x/n+dx[k],b=x%n+dy[k], d=a*n+b;
             if(!inbound(a,b,n,n)||flag[d])continue;
-            if(brd[d]=='?') nbs.pb(d);
+            if(brd[d]=='?') nbs.insert(d);
             else if(brd[d]==color) DFS(n,d,flag,brd);
         }
     }
@@ -61,7 +62,7 @@ struct Component{
         num=b.num;
         news();
         FOR(i,n)FOR(j,n) brd[i*n+j]=b[i][j];
-        //refresh();
+        refresh();
     }
     ~Component() {
         clear();
@@ -80,6 +81,7 @@ struct Component{
         news();
         FOR(i,n)FOR(j,n) 
             brd[i*n+j]=".?"[b[i][j] == '.'];
+        refresh();
     }
     void refresh() {
         clear();
@@ -119,9 +121,51 @@ struct Component{
         set(a*n+b,c);
         if(update)update_connections(a,b,c);
     }
-    void update_connections(int a,int b, char c) {
-        assert(c!='?');
-
+    void update_connections(int i,int j, char color) {
+        assert(color!='?');
+        int id[4],top=0;
+        FOR(k,4) {
+            int a=i+dx[k],b=j+dy[k];
+            if(!inbound(a,b,n,n) || brd[a*n+b]!=color) continue;
+            id[top++]=father(a*n+b);
+        }
+        static int cnt[5]={};
+        int x=i*n+j;
+        if(top==0) {
+            cnt[0]++;
+            Connected *c = new Connected;
+            c->ids.pb(x);
+            FOR(k,4) {
+                int a=i+dx[k],b=j+dy[k];
+                if(!inbound(a,b,n,n) || brd[a*n+b]!='?') continue;
+                c->nbs.insert(a*n+b);
+            }
+            c->color = color;
+            c->bnum = -1;
+            belong[x] = c;
+            if(color=='.') wcs.pb(c);
+            else bcs.pb(c);
+            return;
+        }
+        sort(id,id+top);
+        top = unique(id,id+top)-id;
+        cnt[top]++;
+        if(top==1) {
+            //FOR(i,n*n) printf("%d ",Set[i]);
+            //printf("%d %c %d %d\n",x,color,id[0],belong[id[0]]);
+            Connected *c = belong[id[0]];
+            //c->output();
+            c->ids.pb(x);
+            FOR(k,4) {
+                int a=i+dx[k],b=j+dy[k];
+                if(!inbound(a,b,n,n) || brd[a*n+b]!='?') continue;
+                c->nbs.insert(a*n+b);
+            }
+            U(id[0],x);
+            return;
+        }
+        refresh();
+        //FOR(i,5)printf("%d ",cnt[i]);puts("");
     }
     bool extend() {
         refresh();
@@ -136,10 +180,9 @@ struct Component{
     bool extend_bw(vector<Connected*>&cs, bool check1) { // need prevent double extension issue
         if(check1 && cs.size()<=1) return false;
         for(auto c:cs) {
-            if(c->bnum!=-1) continue;
             if(c->nbs.size()==0) throw ("GG when extension");
             if(c->nbs.size()>1) continue;
-            int &x=c->nbs[0],i=x/n,j=x%n;
+            int x=*c->nbs.begin(),i=x/n,j=x%n;
             set(i,j,c->color);
             return true;
         }
@@ -157,11 +200,12 @@ struct Component{
                 surround_black(c);
                 swap(ncs[r],ncs[ncs.size()-1]);
                 ncs.pop_back(); r--;
+                delete c;
                 continue;
             }
             if(c->nbs.size()==0) throw ("GG when number extension");
             if(c->nbs.size()>1) continue;
-            int x=c->nbs[0],i=x/n,j=x%n;
+            int x=*c->nbs.begin(),i=x/n,j=x%n;
             set(i,j,c->color);
             ext=true;
         }

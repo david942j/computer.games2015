@@ -52,7 +52,7 @@ struct Solver {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n)) continue;
                 if(brd[a][b]=='.')fail();
-                brd.set(a,b,'X');
+                brd.set(a,b,'X', false);
             }
         }
     }
@@ -65,12 +65,13 @@ struct Solver {
                     touch=true;break;
                 }
             }
-            if(!touch)brd.set(i,j,'X');
+            if(!touch)brd.set(i,j,'X', false);
         }
     }
     void first_greedy() {
         surround1();
         untouchable();
+        brd.refresh();
     }
 /************end of first greedy****************/
     bool must_black(Component& brd) { //4?2 => 4X2
