@@ -61,6 +61,7 @@ struct Component{
         num=b.num;
         news();
         FOR(i,n)FOR(j,n) brd[i*n+j]=b[i][j];
+        //refresh();
     }
     ~Component() {
         clear();
@@ -72,7 +73,6 @@ struct Component{
         brd = new char [n*n];
         belong = new Connected* [n*n];
         Set = new int [n*n];
-        FOR(i,n*n)Set[i]=i;
     }
     void init(int _n, const Board &b, int **_num) {
         n=_n;
@@ -100,6 +100,7 @@ struct Component{
                 for(auto id:c->ids)
                     belong[id] = c;
             }
+        FOR(i,n*n)Set[i]=i;
         repeat(FOR1(i,c->ids.size()-1)U(c->ids[0],c->ids[i]);)
         delete [] flag;
     }
@@ -144,14 +145,20 @@ struct Component{
         }
         return false;
     }
-    void U(int x,int y){x=father(x);y=father(y);if(x!=y)Set[x]=y;}
+    void U(int x,int y){x=father(x);y=father(y);if(x!=y)Set[y]=x;}
     int father(int x){return x==Set[x]?x:Set[x]=father(Set[x]);}
     bool extend_number() { // should have no double extension
         bool ext=false;
-        for(auto c:ncs) {
+        FOR(r,ncs.size()) {
+            auto c = ncs[r];
             int bnum = c->bnum;
             if(c->ids.size() > bnum) throw ("More than bnum");
-            if(c->ids.size() == bnum){ surround_black(c); continue;}
+            if(c->ids.size() == bnum){ 
+                surround_black(c);
+                swap(ncs[r],ncs[ncs.size()-1]);
+                ncs.pop_back(); r--;
+                continue;
+            }
             if(c->nbs.size()==0) throw ("GG when number extension");
             if(c->nbs.size()>1) continue;
             int x=c->nbs[0],i=x/n,j=x%n;
@@ -161,7 +168,7 @@ struct Component{
         return ext;
     }
     void surround_black(Connected *c) {
-        for(auto id:c->nbs) set(id,'X');
+        for(auto id:c->nbs) set(id,'X'); //bad because keep new / delete
     }
 };
 #endif
