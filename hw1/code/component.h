@@ -165,6 +165,7 @@ struct Component{
             U(id[0],x);
             return;
         }
+        refresh();
         //FOR(i,5)printf("%d ",cnt[i]);puts("");
     }
     bool extend() {
