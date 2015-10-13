@@ -16,22 +16,22 @@ public:
         DFS(n,x,y,flag,brd);
     }
     bool extend(int n,int **num, char **brd) {
-        VI possible;
+        int possible = -1;
         for(auto id:V) {
             int i=id/n,j=id%n;
             FOR(k,4) {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n)) continue;
-                if(brd[a][b]=='?') possible.pb(a*n+b);
+                if(brd[a][b]=='?') {
+                    if(possible != -1) return false; //more than two
+                    possible = a*n+b;
+                }
             }
         }
-        if(possible.size()==0) throw ("GG when extension");
-        else if(possible.size()==1) {
-            int i=possible[0]/n,j=possible[0]%n;
-            brd[i][j]=color;
-            return true;
-        }
-        return false;
+        if(possible==-1) throw ("GG when extension");
+        int i=possible/n,j=possible%n;
+        brd[i][j]=color;
+        return true;
     }
 private:
     void DFS(int n,int x,int y,bool **flag,char **brd) {
@@ -58,23 +58,23 @@ public:
     bool extend(int n,int **num, char **brd) {
         int bnum = num[belong/n][belong%n];
         if(V.size() > bnum) throw ("More than bnum");
-        VI possible;
         if(V.size() == bnum) return surround_black(n,brd);
+        int possible = -1;
         for(auto id:V) {
             int i=id/n,j=id%n;
             FOR(k,4) {
                 int a=i+dx[k],b=j+dy[k];
                 if(!inbound(a,b,n,n)) continue;
-                if(brd[a][b]=='?') possible.pb(a*n+b); // 4?. issue
+                if(brd[a][b]=='?') {
+                    if(possible != -1) return false; //more than two
+                    possible = a*n+b;
+                }
             }
         }
-        if(possible.size()==0) throw ("GG when number extension");
-        else if(possible.size()==1) {
-            int i=possible[0]/n,j=possible[0]%n;
-            brd[i][j]=color;
-            return true;
-        }
-        return false;
+        if(possible==-1) throw ("GG when number extension");
+        int i=possible/n,j=possible%n;
+        brd[i][j]=color;
+        return true;
     }
     bool surround_black(int n, char **brd) {
         bool ret=false;
@@ -100,6 +100,7 @@ struct Component{
         num=b.num;
         new2d(brd,char,n,n);
         FOR(i,n)FOR(j,n) brd[i][j]=b[i][j];
+//        refresh();
     }
     ~Component() {
         clear();
@@ -131,8 +132,13 @@ struct Component{
         ncs.clear(); wbcs.clear();
     }
     const char *operator[](const int &i)const{return brd[i];}
-    void set(int a,int b, char c) {
+    void set(int a,int b, char c, bool update=true) {
         brd[a][b]=c;
+        if(update)update_connections(a,b,c);
+    }
+    void update_connections(int a,int b, char c) {
+        assert(c!='?');
+
     }
     bool extend() {
         refresh();

@@ -134,12 +134,12 @@ struct Solver {
         }
         while(musts(b));
         FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2) {
-            b.set(i,j,".X"[k]);
+            b.set(i,j,".X"[k], false);
             bool r = stupid_search(b,dlimit-1);
-            b.set(i,j,'?');
+            b.set(i,j,'?', false);
             if(r)continue;
-            b.set(i,j,"X."[k]);
-            if(stupid_search(b,dlimit-1)) {b.set(i,j,'?');continue;}
+            b.set(i,j,"X."[k], false);
+            if(stupid_search(b,dlimit-1)) {b.set(i,j,'?', false);continue;}
             // no matter .X leads false
             return false;
         }
@@ -148,12 +148,12 @@ struct Solver {
     bool stupid_search_extend(int dlimit) {
         Component b(brd);
         FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2){
-            b.set(i,j,".X"[k]);
+            b.set(i,j,".X"[k], false);
             if(!stupid_search(b,dlimit-1)) {
                 brd.set(i,j,"X."[k]);
                 return true;
             }
-            b.set(i,j,'?'); // hard to handle...
+            b.set(i,j,'?', false); // hard to handle...
         }
         return false;
     }
