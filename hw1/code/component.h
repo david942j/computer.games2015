@@ -44,7 +44,8 @@ struct Component{
     char *brd;
     Connected* *belong;
     int *Set;
-    vector<Connected*>cs;
+    vector<Connected*>ncs, bcs, wcs;
+    #define repeat(magic) for(auto c:ncs)magic;for(auto c:bcs)magic;for(auto c:wcs)magic;
     /*
         Connected: ids, neighbors
         extend(): go through neighbors
@@ -87,26 +88,26 @@ struct Component{
         FOR(i,n*n)flag[i]=false;
         FOR(i,n)FOR(j,n) if(num[i][j]!=-1) {
             Connected *c = new Connected(n,brd,flag,i*n+j,num[i][j]);
-            cs.pb(c);
+            ncs.pb(c);
             for(auto id:c->ids)
                 belong[id] = c;
         }
         FOR(i,n*n)if(!flag[i])
             if(brd[i]=='X'||brd[i]=='.') {
                 Connected *c = new Connected(n,brd,flag,i,-1);
-                cs.pb(c);
+                if(brd[i]=='X')bcs.pb(c);
+                else wcs.pb(c);
                 for(auto id:c->ids)
                     belong[id] = c;
             }
-        for(auto c:cs) {
-            FOR1(i,c->ids.size()-1)
-                U(c->ids[0],c->ids[i]);
-        }
+        repeat(FOR1(i,c->ids.size()-1)U(c->ids[0],c->ids[i]);)
         delete [] flag;
     }
     void clear() {
-        for(auto c:cs) delete c;
-        cs.clear();
+        repeat(delete c;)
+        ncs.clear();
+        wcs.clear();
+        bcs.clear();
     }
     const char *operator[](const int &i)const{return &brd[i*n];}
     void set(int x,char c) {
@@ -123,25 +124,17 @@ struct Component{
     }
     bool extend() {
         refresh();
-        if(extend_bw('X')) return true;
+        if(extend_bw(bcs,true)) return true;
         if(extend_number()) return true;
-        if(extend_bw('.')) return true;
+        if(extend_bw(wcs,false)) return true;
         return false;
     }
     void output() {
-        for(auto c:cs) {
-            c->output();
-            puts("---");
-        }
+        repeat({c->output();puts("---");})
     }
-    bool extend_bw(char color) { // need prevent double extension issue
-        if(color=='X') {
-            int cnt=0;
-            for(auto c:cs) if(c->color==color)cnt++;
-            if(cnt<=1) return false;
-        }
+    bool extend_bw(vector<Connected*>&cs, bool check1) { // need prevent double extension issue
+        if(check1 && cs.size()<=1) return false;
         for(auto c:cs) {
-            if(c->color!=color) continue;
             if(c->bnum!=-1) continue;
             if(c->nbs.size()==0) throw ("GG when extension");
             if(c->nbs.size()>1) continue;
@@ -155,9 +148,8 @@ struct Component{
     int father(int x){return x==Set[x]?x:Set[x]=father(Set[x]);}
     bool extend_number() { // should have no double extension
         bool ext=false;
-        for(auto c:cs) {
+        for(auto c:ncs) {
             int bnum = c->bnum;
-            if(bnum==-1)continue;
             if(c->ids.size() > bnum) throw ("More than bnum");
             if(c->ids.size() == bnum){ surround_black(c); continue;}
             if(c->nbs.size()==0) throw ("GG when number extension");
