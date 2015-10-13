@@ -158,9 +158,12 @@ struct Component{
         cs.clear();
     }
     const char *operator[](const int &i)const{return &brd[i*n];}
+    void set(int x,char c) {
+        if(brd[x]+c == '.'+'X') throw "Inconsistent set";
+        brd[x]=c;
+    }
     void set(int a,int b, char c, bool update=true) {
-        if(brd[a*n+b]+c == '.'+'X') throw "Inconsistent set";
-        brd[a*n+b]=c;
+        set(a*n+b,c);
         if(update)update_connections(a,b,c);
     }
     void update_connections(int a,int b, char c) {
@@ -216,7 +219,7 @@ struct Component{
         return ext;
     }
     void surround_black(Connected *c) {
-
+        for(auto id:c->nbs) set(id,'X');
     }
     void print() {
         //printf("%d %d %d\n",ncs.size(),wcs.size(),bcs.size());
