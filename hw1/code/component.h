@@ -122,14 +122,17 @@ struct Component{
     }
     void update_connections(int i,int j, char color) {
         assert(color!='?');
-        int id[4],top=0;
+        int id[4],top=0, x=i*n+j;
         FOR(k,4) {
             int a=i+dx[k],b=j+dy[k];
-            if(!inbound(a,b,n,n) || brd[a*n+b]!=color) continue;
-            id[top++]=father(a*n+b);
+            if(!inbound(a,b,n,n)) continue;
+            int d=a*n+b;
+            if(brd[d]==color)
+                id[top++]=father(a*n+b);
+            else if(brd[d] != '?')
+                belong[father(d)]->nbs.erase(x);
         }
         static int cnt[5]={};
-        int x=i*n+j;
         if(top==0) {
             cnt[0]++;
             Connected *c = new Connected;
@@ -238,7 +241,9 @@ struct Component{
         return ext;
     }
     void surround_black(Connected *c) {
-        for(auto id:c->nbs) set(id,'X',true); //bad because keep new / delete
+        VI V;
+        for(auto id:c->nbs) if(brd[id]!='X')V.pb(id);
+        for(auto id:V) set(id,'X',true); // becuz aset might change c->nbs
     }
 };
 #endif
