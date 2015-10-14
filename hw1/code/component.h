@@ -13,13 +13,12 @@ public:
     set<int> nbs;
     char color;
     int bnum;
+    inline int idnb_size(){return ids.size() + nbs.size();}
     void read_from(int n,char *brd,bool *flag,int x){
         ids.clear();
         nbs.clear();
         color = brd[x];
         DFS(n,x,flag,brd);
-        //sort(ALL(nbs));
-        //nbs.resize(unique(ALL(nbs))-nbs.begin());
     }
     void output() {
         printf("boss @ %d\nids: \n",ids[0]);
@@ -75,6 +74,12 @@ struct Component{
         belong = new Connected* [n*n];
         Set = new int [n*n];
     }
+    void clear() {
+        repeat(delete c;)
+        ncs.clear();
+        wcs.clear();
+        bcs.clear();
+    }
     void init(int _n, const Board &b, int **_num) {
         n=_n;
         num=_num;
@@ -88,7 +93,7 @@ struct Component{
         bool *flag;
         flag = new bool [n*n];
         FOR(i,n*n)flag[i]=false;
-        FOR(i,n)FOR(j,n) if(num[i][j]!=-1) {
+        FOR(i,n)FOR(j,n) if(num[i][j]!=-1) { //TODO: no need for those have fulfill
             Connected *c = new Connected(n,brd,flag,i*n+j,num[i][j]);
             ncs.pb(c);
             for(auto id:c->ids)
@@ -105,12 +110,6 @@ struct Component{
         FOR(i,n*n)Set[i]=i;
         repeat(FOR1(i,c->ids.size()-1)U(c->ids[0],c->ids[i]);)
         delete [] flag;
-    }
-    void clear() {
-        repeat(delete c;)
-        ncs.clear();
-        wcs.clear();
-        bcs.clear();
     }
     const char *operator[](const int &i)const{return &brd[i*n];}
     void set(int x,char c, bool update) {
@@ -151,22 +150,47 @@ struct Component{
         top = unique(id,id+top)-id;
         cnt[top]++;
         if(top==1) {
-            //FOR(i,n*n) printf("%d ",Set[i]);
-            //printf("%d %c %d %d\n",x,color,id[0],belong[id[0]]);
-            Connected *c = belong[id[0]];
-            //c->output();
-            c->ids.pb(x);
-            FOR(k,4) {
-                int a=i+dx[k],b=j+dy[k];
-                if(!inbound(a,b,n,n) || brd[a*n+b]!='?') continue;
-                c->nbs.insert(a*n+b);
-            }
-            c->nbs.erase(x);
-            U(id[0],x);
+            merge(belong[id[0]], x);
             return;
+        }
+        if(top==2) {
+            if(color=='X') {
+                int ed = bcs.size() - 1;
+                FOR(i,ed) {
+                    if(bcs[i]==belong[id[0]] || bcs[i]==belong[id[1]]) {
+                        swap(bcs[ed],bcs[i]);
+                        ed--;
+                        i--;
+                    }
+                }
+                ed = bcs.size() - 1;
+                if(bcs[ed]->idnb_size() >  bcs[ed-1]->idnb_size())
+                    swap(bcs[ed],bcs[ed-1]);
+                merge(bcs[ed-1],bcs[ed]);
+                merge(bcs[ed-1], x);
+                bcs.pop_back();
+                return;
+            }
         }
         refresh();
         //FOR(i,5)printf("%d ",cnt[i]);puts("");
+    }
+    void merge(Connected *c, int x) {
+        c->ids.pb(x);
+        int i=x/n,j=x%n;
+        FOR(k,4) {
+            int a=i+dx[k],b=j+dy[k];
+            if(!inbound(a,b,n,n) || brd[a*n+b]!='?') continue;
+            c->nbs.insert(a*n+b);
+        }
+        c->nbs.erase(x);
+        U(c->ids[0],x);
+    }
+    void merge(Connected *a, Connected *b) {
+        int x=a->ids[0],y=b->ids[0];
+        U(x,y);
+        for(auto c:b->ids)a->ids.pb(c);
+        for(auto c:b->nbs)a->nbs.insert(c);
     }
     bool extend() {
         if(extend_bw(bcs,true)) return true;
