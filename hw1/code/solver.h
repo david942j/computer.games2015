@@ -75,6 +75,9 @@ struct Solver {
     }
 /************end of first greedy****************/
     bool must_black(Component& brd) { //4?2 => 4X2
+        static int qq=0;
+        qq++;
+        //if(qq%1000==0)printf("%d ",qq);
         brd.refresh();
         bool got=false;
         FOR(i,n)FOR(j,n) if(brd[i][j]=='?') {

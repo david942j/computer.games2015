@@ -153,24 +153,26 @@ struct Component{
             merge(belong[id[0]], x);
             return;
         }
-        if(top==2) {
-            if(color=='X') {
+        if(color=='X') {
+            while(top>=2) {
                 int ed = bcs.size() - 1;
-                FOR(i,ed) {
-                    if(bcs[i]==belong[id[0]] || bcs[i]==belong[id[1]]) {
+                FOR(i,ed)
+                    if(bcs[i]==belong[id[top-2]] || bcs[i]==belong[id[top-1]]) {
                         swap(bcs[ed],bcs[i]);
                         ed--;
                         i--;
                     }
-                }
                 ed = bcs.size() - 1;
                 if(bcs[ed]->idnb_size() >  bcs[ed-1]->idnb_size())
                     swap(bcs[ed],bcs[ed-1]);
                 merge(bcs[ed-1],bcs[ed]);
-                merge(bcs[ed-1], x);
+                top--;
+                id[top-1] = bcs[ed-1]->ids[0];
+                delete bcs[ed];
                 bcs.pop_back();
-                return;
             }
+            merge(bcs.back(), x);
+            return;
         }
         refresh();
         //FOR(i,5)printf("%d ",cnt[i]);puts("");
@@ -236,7 +238,7 @@ struct Component{
         return ext;
     }
     void surround_black(Connected *c) {
-        for(auto id:c->nbs) set(id,'X', false); //bad because keep new / delete
+        for(auto id:c->nbs) set(id,'X',true); //bad because keep new / delete
     }
 };
 #endif
