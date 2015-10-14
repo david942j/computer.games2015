@@ -35,11 +35,16 @@ struct Solver {
         init(b);
         solve();
     }
+    #define NOT_FINISH 0
+    #define SUCCESS 1
+    #define INVALID -1
     void solve() {
         first_greedy();
         while(improvement());
-        if(solved()) puts("Solved!!");
-        else puts("Can\'t improve any more QQ.");
+        int s = solved();
+        if(s==SUCCESS) puts("Solved!!");
+        else if(s==NOT_FINISH) puts("Can\'t improve any more QQ.");
+        else if(s==INVALID) output(),fail("Invalid Solution!!");
         output();
     }
 /****************************
@@ -158,12 +163,13 @@ struct Solver {
 /****************************
 * helper functions
 ****************************/
-    bool solved() {
-        FOR(i,n)FOR(j,n)if(brd[i][j]=='?') return false;
-        return true;
-    }
-    inline char char_at(int y) {
-        return brd[y/n][y%n];
+    int solved() {
+        FOR(i,n)FOR(j,n)if(brd[i][j]=='?') return NOT_FINISH;
+        brd.refresh();
+        for(auto c:brd.ncs) if(c->ids.size() != c->bnum) return INVALID;
+        if(brd.bcs.size() != 1) return INVALID;
+        if(brd.wcs.size() != 0) return INVALID;
+        return SUCCESS;
     }
     void output(Component& b)const {
         puts("==================");

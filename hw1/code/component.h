@@ -243,7 +243,7 @@ struct Component{
     void surround_black(Connected *c) {
         VI V;
         for(auto id:c->nbs) if(brd[id]!='X')V.pb(id);
-        for(auto id:V) set(id,'X',true); // becuz aset might change c->nbs
+        for(auto id:V) set(id,'X',true); // becuz set might change c->nbs
     }
 };
 #endif
