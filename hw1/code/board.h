@@ -1,7 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 #include "functions.h"
-struct Board { //doesn't support number >= 10 QQ NUMBER10
+struct Board {
     int n;
     char **brd;
     Board(){n=0;brd=NULL;}

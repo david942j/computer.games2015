@@ -3,7 +3,7 @@
 #define FUNCTIONS_H
 
 #ifndef VERSION
-#define VERSION 131
+#define VERSION 132
 #endif
 
 #include <cstdio>
@@ -49,4 +49,18 @@ int dx[]={1,0,-1,0},dy[]={0,1,0,-1};
 #define inbound(i,j,n,m) (i>=0&&j>=0&&i<n&&j<m)
 void fail(const char *s="No sol"){printf("%s\n",s); assert(false);}
 inline int manhatton(int a,int b,int c,int d){return abs(c-a)+abs(d-b);}
+inline int a62toi(char c) {
+    if(c>='0' && c<='9') return c-'0';
+    if(c>='a' && c<='z') return c-'a'+10;
+    if(c>='A' && c<='Z') return c-'A'+10+26;
+    return -1;
+}
+inline char itoa62(int i) {
+    if(i<=9) return '0'+i;
+    i-=10;
+    if(i<26) return 'a'+i;
+    i-=26;
+    if(i<26) return 'A'+i;
+    return 0;
+}
 #endif

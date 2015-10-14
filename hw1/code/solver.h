@@ -18,7 +18,7 @@ struct Solver {
         n=b.size();
         new2d(num,int,n,n);
         FOR(i,n)FOR(j,n)
-            if(b[i][j]!='.')num[i][j]=b[i][j]-'0'; // NUMBER10
+            if(b[i][j]!='.')num[i][j]=a62toi(b[i][j]);
             else num[i][j]=-1;
         brd.init(n, b, num);
         make_numbers();
@@ -174,7 +174,7 @@ struct Solver {
     void output(Component& b)const {
         puts("==================");
         FOR(i,n) {
-            FOR(j,n)if(num[i][j]!=-1)printf(" %d",num[i][j]);
+            FOR(j,n)if(num[i][j]!=-1)printf(" %c",itoa62(num[i][j]));
                 else printf(" %c",b[i][j]);
             puts("");
         }
