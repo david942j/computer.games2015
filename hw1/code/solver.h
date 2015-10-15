@@ -6,17 +6,20 @@ struct Solver {
     Component brd;
     int **num;
     vector<PII> numbers; // {number, i*n+j}
+    PII *order;
 /****************************
 * init functions
 ****************************/
     Solver(){num=0;n=0;}
     ~Solver(){
         delete2d(num,n);
+        delete [] order;
         n=0;
     }
     void init(const Board &b) {
         n=b.size();
         new2d(num,int,n,n);
+        order = new PII[n*n];
         FOR(i,n)FOR(j,n)
             if(b[i][j]!='.')num[i][j]=a62toi(b[i][j]);
             else num[i][j]=-1;
@@ -119,13 +122,20 @@ struct Solver {
         if(brd.extend()) tmp=true;
         return tmp;
     }
+    void heuristic_order() {
+        FOR(i,n*n)order[i]={0,i};
+        for(auto c:brd.ncs) for(auto x:c->nbs)
+            order[x].X -= 60/c->nbs.size();
+        sort(order,order+n*n);
+    }
     bool improvement() {
         if(musts(brd)) return true;
-        FOR1(depth,2) //IDFS
-            if(stupid_search_extend(depth)) return true;
+        heuristic_order();
+        FOR1(depth,2) //IDFS 
+            if(search_extend(depth)) return true;
         return false;
     }
-    bool stupid_search(Component& brd, int dlimit) { // true: dont' know; false: no sol
+    bool search(Component& brd, int dlimit, int pos) { // true: dont' know; false: no sol
         Component b(brd);
         if(dlimit == 0) {
             try {
@@ -136,27 +146,33 @@ struct Solver {
             return true;
         }
         while(musts(b));
-        FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2) {
-            b.set(i,j,".X"[k], false);
-            bool r = stupid_search(b,dlimit-1);
-            b.set(i,j,'?', false);
-            if(r)continue;
-            b.set(i,j,"X."[k], false);
-            if(stupid_search(b,dlimit-1)) {b.set(i,j,'?', false);continue;}
-            // no matter .X leads false
-            return false;
+        for(int i=pos+1;i<n*n;i++){
+            int x=order[i].Y;
+            if(b.brd[x]=='?') FOR(k,2) {
+                b.set(x,".X"[k], false);
+                bool r = search(b,dlimit-1,i);
+                b.set(x,'?', false);
+                if(r)continue;
+                b.set(x,"X."[k], false);
+                if(search(b,dlimit-1,i)) {b.set(x,'?', false);continue;}
+                // no matter .X leads false
+                return false;
+            }
         }
         return true;
     }
-    bool stupid_search_extend(int dlimit) {
+    bool search_extend(int dlimit) {
         Component b(brd);
-        FOR(i,n)FOR(j,n) if(b[i][j]=='?') FOR(k,2){
-            b.set(i,j,".X"[k], false);
-            if(!stupid_search(b,dlimit-1)) {
-                brd.set(i,j,"X."[k]);
-                return true;
+        FOR(i,n*n) {
+            int x=order[i].Y;
+            if(b.brd[x]=='?')FOR(k,2) {
+                b.set(x,".X"[k], false);
+                if(!search(b,dlimit-1,i)) {
+                    brd.set(x,"X."[k],true);
+                    return true;
+                }
+                b.set(x,'?', false);
             }
-            b.set(i,j,'?', false);
         }
         return false;
     }

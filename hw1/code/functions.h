@@ -3,7 +3,7 @@
 #define FUNCTIONS_H
 
 #ifndef VERSION
-#define VERSION 132
+#define VERSION 140
 #endif
 
 #include <cstdio>
