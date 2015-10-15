@@ -206,6 +206,15 @@ struct Component{
     void output() {
         repeat({c->output();puts("---");})
     }
+    void output_brd()const {
+        puts("==================");
+        FOR(i,n) {
+            FOR(j,n)if(num[i][j]!=-1)printf(" %c",itoa62(num[i][j]));
+                else printf(" %c",brd[i*n+j]);
+            puts("");
+        }
+        puts("==================");
+    }
     bool extend_bw(vector<Connected*>&cs, bool check1) { // need prevent double extension issue
         if(check1 && cs.size()<=1) return false;
         for(auto c:cs) {

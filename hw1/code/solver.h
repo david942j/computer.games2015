@@ -187,13 +187,7 @@ struct Solver {
         return SUCCESS;
     }
     void output(Component& b)const {
-        puts("==================");
-        FOR(i,n) {
-            FOR(j,n)if(num[i][j]!=-1)printf(" %c",itoa62(num[i][j]));
-                else printf(" %c",b[i][j]);
-            puts("");
-        }
-        puts("==================");
+        b.output_brd();
     }
     void output(){output(brd);}
 };

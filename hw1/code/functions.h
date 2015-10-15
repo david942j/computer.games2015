@@ -20,6 +20,7 @@
 #include <queue>
 #include <stack>
 #include <cstdlib>
+#include "unistd.h"
 #define mpr std::make_pair
 #define lg(x) (31-__builtin_clz(x))
 #define lgll(x) (63-__builtin_clzll(x))
