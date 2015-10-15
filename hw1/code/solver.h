@@ -135,8 +135,7 @@ struct Solver {
             if(search_extend(depth)) return true;
         return false;
     }
-    bool search(Component& brd, int dlimit, int pos) { // true: dont' know; false: no sol
-        Component b(brd);
+    bool search(Component b, int dlimit, int pos) { // true: dont' know; false: no sol
         if(dlimit == 0) {
             try {
                 while(musts(b));
@@ -162,16 +161,16 @@ struct Solver {
         return true;
     }
     bool search_extend(int dlimit) {
-        Component b(brd);
         FOR(i,n*n) {
             int x=order[i].Y;
-            if(b.brd[x]=='?')FOR(k,2) {
-                b.set(x,".X"[k], false);
-                if(!search(b,dlimit-1,i)) {
+            if(brd.brd[x]=='?')FOR(k,2) {
+                brd.set(x,".X"[k], false);
+                if(!search(brd,dlimit-1,i)) {
+                    brd.set(x,'?',false);
                     brd.set(x,"X."[k],true);
                     return true;
                 }
-                b.set(x,'?', false);
+                brd.set(x,'?', false);
             }
         }
         return false;
