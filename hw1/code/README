@@ -1,0 +1,8 @@
+# README of Nurikabe Solver
+
+How to compile:
+  make
+
+How ro run:
+  ./main < input_data/20_86033.in
+
